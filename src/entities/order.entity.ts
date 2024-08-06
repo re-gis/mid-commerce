@@ -29,6 +29,9 @@ export class Order {
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
+  @Column()
+  shipping_address: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

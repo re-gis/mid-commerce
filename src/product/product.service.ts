@@ -15,6 +15,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ProductService {
+ 
   constructor(private readonly cloudinaryService: CloudinaryService) {}
   @InjectRepository(Product)
   private readonly productRepository: Repository<Product>;
@@ -60,6 +61,7 @@ export class ProductService {
         message: await this.productRepository.save(p),
       };
     } catch (e) {
+      console.log(e)
       throw new InternalServerErrorException(e);
     }
   };
@@ -80,4 +82,18 @@ export class ProductService {
       };
     } catch (e) {}
   };
+ async  deleteProductById(id: number): Promise<IResponse|undefined>   {
+    try {
+      await this.productRepository.delete({
+        id,
+      })
+      return{
+        status: 200,
+        message: "product deleted successfully"
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+      
+    }
+  }
 }

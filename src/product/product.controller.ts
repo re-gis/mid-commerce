@@ -2,10 +2,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { JwtAuthGuard } from 'src/guards';
 import { DefinedApiResponse } from 'src/payload/defined-payload';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { SellerGuard } from 'src/guards/seller.guard';
 
 @Controller('product')
 export class ProductController {
@@ -22,13 +24,14 @@ export class ProductController {
 
   @Post('/create')
   @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, SellerGuard)
   @Roles('SELLER')
   async createProduct(
-    @UploadedFile('image') image: Express.Multer.File,
+    @UploadedFiles() file: { image?: Express.Multer.File[] },
     @Body() dto: CreateProductDto,
     @GetUser() user: any,
   ): Promise<DefinedApiResponse> {
+    const image = file.image ? file.image[0] : undefined;
     return new DefinedApiResponse(
       true,
       null,
@@ -51,6 +54,16 @@ export class ProductController {
       true,
       null,
       await this.productService.getProductById(+id),
+    );
+  }
+  @Delete('/:id')
+  async deleteProductById(
+    @Param('id') id: string,
+  ): Promise<DefinedApiResponse> {
+    return new DefinedApiResponse(
+      true,
+      null,
+      await this.productService.deleteProductById(+id),
     );
   }
 }

@@ -5,6 +5,7 @@ import { AddToCartDto } from './dto/add-to-cart.dto';
 import { GetUser } from 'src/decorators';
 import { DefinedApiResponse } from 'src/payload/defined-payload';
 import { CartService } from './cart.service';
+import { CheckoutDto } from './dto/check-out.dto';
 
 @Controller('cart')
 export class CartController {
@@ -30,6 +31,16 @@ export class CartController {
       true,
       null,
       await this.cartService.getCart(user),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/checkout')
+  async checkout(@Body() dto: CheckoutDto, @GetUser() user: any) {
+    return new DefinedApiResponse(
+      true,
+      null,
+      await this.cartService.checkout(user, dto),
     );
   }
 }
